@@ -1,4 +1,3 @@
-
 import streamlit as st
 import google.generativeai as genai
 from pypdf import PdfReader
@@ -13,11 +12,8 @@ st.set_page_config(
 st.title("📄 AI Resume Analyzer & Skill-Gap Finder")
 st.markdown("Analyze your resume against any job description to evaluate ATS match scores and find skill gaps.")
 
-# Sidebar API Key
-with st.sidebar:
-    st.header("⚙️ Configuration")
-    api_key = st.text_input("Enter your Gemini API Key:", type="password")
-    st.caption("Get a free API key from [Google AI Studio](https://aistudio.google.com/).")
+# Retrieve API key automatically from Streamlit Secrets
+api_key = st.secrets.get("GEMINI_API_KEY")
 
 # Helper function to extract PDF text
 def extract_pdf_text(uploaded_file):
@@ -43,7 +39,7 @@ with col2:
 # Action button
 if st.button("🚀 Analyze Resume", type="primary", use_container_width=True):
     if not api_key:
-        st.warning("⚠️ Please provide a Gemini API Key in the sidebar.")
+        st.error("⚠️ Gemini API Key not found. Please configure GEMINI_API_KEY in Streamlit Secrets.")
     elif uploaded_file is None:
         st.warning("⚠️ Please upload a resume in PDF format.")
     elif not job_description.strip():
