@@ -51,7 +51,25 @@ if st.button("🚀 Analyze Resume", type="primary", use_container_width=True):
         with st.spinner("Analyzing your resume against the job description..."):
             try:
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel("gemini-1.5-flash")
+
+                # Automatically find an active model that supports text generation
+                available_models = [
+                    m.name for m in genai.list_models()
+                    if 'generateContent' in m.supported_generation_methods
+                ]
+
+                # Select the best available model
+                selected_model = None
+                for m_name in available_models:
+                    if "flash" in m_name:
+                        selected_model = m_name
+                        break
+                if not selected_model and available_models:
+                    selected_model = available_models[0]
+                if not selected_model:
+                    selected_model = "gemini-pro"
+
+                model = genai.GenerativeModel(selected_model)
 
                 resume_text = extract_pdf_text(uploaded_file)
 
@@ -91,4 +109,3 @@ if st.button("🚀 Analyze Resume", type="primary", use_container_width=True):
 
             except Exception as e:
                 st.error(f"Error during analysis: {e}")
-              
